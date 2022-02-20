@@ -24,7 +24,8 @@ export function truncateDecimals(number, digits) {
  * @returns : float number convienent to see
  */
 export function toHumanizeFixed(x, decimals){
-    const d = typeof decimals === 'undefined' ? 6 : decimals;
+    let d = typeof decimals === 'undefined' ? 10 : decimals;
+    if (x > 0.1) d = 5
     return x.toFixed(d).replace(/\.?0*$/,'');
 }
 

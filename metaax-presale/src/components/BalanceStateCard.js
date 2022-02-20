@@ -6,6 +6,7 @@ import LineDesc from "./LineDesc";
 
 const iconLP = "./images/LP.svg"
 const iconBNB = "./images/BNB.svg"
+const iconMtax = './images/mtax.svg';
 // Showing user's presale info(balance, total LP, reserved LP ...)
 export default function BalanceStateCard({info}) {
   const [state, setState] = useState('idle')
@@ -17,12 +18,12 @@ export default function BalanceStateCard({info}) {
       setState('none');
       return;
     }
-    if (info.remainTime == 0)
+    if (info.lockout === 0)
     {
       if (info.reservedLP) {
         setState('reserved')
       }
-      else if (info.ownLP) {
+      else if (info.lp) {
         setState('owner')
       }
       else {
@@ -31,7 +32,7 @@ export default function BalanceStateCard({info}) {
     }
     else
       setState('waiting')
-  }, [info.reservedLP, info.remainTime, info.ownLP, wallet.status])
+  }, [info.reservedLP, info.lockout, info.lp, wallet.status])
 
   async function handleReclaim() {
     const provider = wallet._web3ReactContext.library;
@@ -50,14 +51,16 @@ export default function BalanceStateCard({info}) {
       <div>
         <BalanceUX 
           state={state} 
-          remainTime={info.remainTime}
+          remainTime={info.lockout}
           reclaimHandler = {handleReclaim}
         />
       </div>
     </div>
     <div style={{margin:"0 1.5rem"}}>
       <LineDesc title="BNB" value={info.balance} icon={iconBNB}/>
-      <LineDesc title="Own LPs" value={info.ownLP} icon={iconLP}/>
+      <LineDesc title="Staked MTAX" value={info.amount} icon={iconMtax}/>
+      <LineDesc title="Staked BNB" value={info.bnb} icon={iconBNB}/>
+      <LineDesc title="Own LPs" value={info.lp} icon={iconLP}/>
       <LineDesc 
         title="Reserved LPs" 
         value={info.reservedLP} 
@@ -85,7 +88,7 @@ const BalanceUX = ({state, remainTime, reclaimHandler}) => {
   }
   else if (state === 'waiting') {
     return(
-      <CountdownWatch reset={() => remainTime}/>
+      <CountdownWatch onZero={() => remainTime} referenceTime={remainTime}/>
     )
   }
   else if (state === 'reserved') {

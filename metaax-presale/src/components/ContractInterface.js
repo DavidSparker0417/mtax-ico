@@ -1,38 +1,18 @@
 import ico_abi from 'contracts/MetaAxPresale.json';
 import mtax_abi from 'contracts/MetaAX.json';
-import {DECIMAL_DEFAULT, ethToWei, web3GetContract, weiToEth} from '../ds-web3'
+import config from '../config.json';
+import {
+  DECIMAL_DEFAULT, 
+  ethToWei,
+  isAddressValid,
+  web3GetContract,
+  weiToEth} from '../ds-web3'
 import { truncateDecimals } from 'utils';
+import { toHumanizeFixed } from 'utils';
 
-export const RPC_NODES = {
-  ether : {
-    chainId : 1,
-    url: "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-  },
-  ropsten : {
-    chainId : 3,
-    url: "https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-  },
-  rinkeby : {
-    chainId : 4,
-    url: "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
-  },
-  bsc : {
-    chainId : 56,
-    url: "https://bsc-dataseed1.ninicoin.io",
-  },
-  bsc_test : {
-    chainId : 97,
-    url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-  },
-  local : {
-    chainId : 539,
-    url : "http://localhost:8545",
-  },
-};
-
-export const TARGET_NET = RPC_NODES.bsc_test;
-const MTAX_CONTRACT = "0x5334E7aA4089866a76D7CAA010b256b3CfC18aEF";
-const ICO_CONTRACT = "0x120309bd9472b87d14211220F5E6A3ddb48939c3";
+export const TARGET_NET = config[config.target];
+const MTAX_CONTRACT = config.contracts.mtax
+const ICO_CONTRACT = config.contracts.ico
 
 export function mtaxICOGetContract(provider) {
   const contract = web3GetContract(provider, ICO_CONTRACT, ico_abi.abi);
@@ -52,27 +32,47 @@ export async function mtaxDecimals() {
  */
 export async function mtaxGetPresaleState(account) {
   const contract = web3GetContract(TARGET_NET.url, ICO_CONTRACT, ico_abi.abi);
-  const decimals = await mtaxDecimals();
   let state;
 
-  if (typeof account === 'undefined' || account === null)
-    state = await contract.methods.queryState().call();
-  else
-    state = await contract.methods.queryState().call({from:account});
-  // console.log(state);
+  try {
+    if (typeof account === 'undefined' || account === null)
+      state = await contract.methods.queryState().call();
+    else
+      state = await contract.methods.queryState().call({from:account});
+  } catch (e) {
+    return undefined
+  }
+  const decimals = await mtaxDecimals();
   return {
-    preasleEndingTime : state.presaleRemainTime,
-    totalInvestors    : state.totalInvestors,
-    totalStatkedToken : weiToEth(state.totalStakedToken, decimals),
-    totalSuppliedLp   : weiToEth(state.totalSuppliedLp, 'ether'),
-    publishPrice      : truncateDecimals(parseInt(state.pubPriceN)/parseInt(state.pubPriceD), 4),
-    currentPrice      : weiToEth(state.currentPrice),
-    discountPercent   : state.discountPercent,
-    userTokenAmount   : weiToEth(state.amount, decimals),
-    userBnbAmount     : weiToEth(state.bnbAmount, 'ether'),
-    userLp            : weiToEth(state.lp),
-    userReservedLP    : weiToEth(state.reservedLP),
-    userRemainTime    : parseInt(state.remainTime),
+    icoStat : {
+      remaining: state.prsStat.remaining,
+      investorCount: state.prsStat.investorCount,
+      amountLimit: weiToEth(state.prsStat.amountLimit, decimals),
+      curPrice: weiToEth(state.prsStat.curPrice),
+      stakedMtax: weiToEth(state.prsStat.stakedMtax, decimals),
+      stakedBNB: toHumanizeFixed(weiToEth(state.prsStat.stakedBNB)),
+      stakedLP: weiToEth(state.prsStat.stakedLP),
+      spentBonus: weiToEth(state.prsStat.spentBonus)
+    },
+    userStat: {
+      amount: weiToEth(state.investor.amount, decimals),
+      bnb: weiToEth(state.investor.bnb),
+      lp: weiToEth(state.investor.lp),
+      reservedAmount: weiToEth(state.investor.reservedAmount),
+      reservedLP: weiToEth(state.investor.reservedLP),
+      lockout: parseInt(state.investor.lockout)
+    },
+    pricePolicy: {
+      publish: truncateDecimals(parseInt(state.price.publishN)/parseInt(state.price.publishD), 9),
+      discount: parseFloat(state.price.discount),
+      discountL: parseFloat(state.price.discountL),
+      discountH: parseFloat(state.price.discountH),
+    },
+    lockPolicy: {
+      lockL : parseInt(state.lockout.lockL),
+      lockM : parseInt(state.lockout.lockM),
+      lockH : parseInt(state.lockout.lockH),
+    }
   }
 }
 
@@ -82,20 +82,29 @@ export async function mtaxGetPresaleState(account) {
  * @param tokenAmount Amount of MTAX token to add liquidity
  * @returns Amount of LP token or error string
  */
-export async function mtaxAddLiquidity(provider, bnbAmount, tokenAmount, lockout) {
+export async function mtaxAddLiquidity(provider, bnbAmount, tokenAmount, lockout, agent) {
   const contract = mtaxICOGetContract(provider);
   const decimals = await mtaxDecimals();
   const mtax = ethToWei(tokenAmount, decimals);
   // ask contract if is enable to add liquidity
-  const abnb = await contract.methods.lookupPreStake(mtax, lockout.toString()).call();
-  if (abnb === 0) {
+  const abnb = (await contract.methods
+    .lookupPreStake(mtax, lockout.toString()).call()).totalBnb;
+  if (weiToEth(abnb) === 0) {
     return undefined;
   }
-
   // add liquidity
+  const agentAddress = isAddressValid(agent) ? agent : "0x0000000000000000000000000000000000000000";
+  contract.handleRevert = true;
+  const gas = await contract.methods
+    .requestPreStake(mtax, lockout, agentAddress)
+    .estimateGas({from:provider.selectedAddress, value:abnb})
   const  transaction = contract.methods
-    .requestPreStake(mtax, lockout)
-    .send({from:provider.selectedAddress, value:abnb});
+    .requestPreStake(mtax, lockout, agentAddress)
+    .send({
+      from:provider.selectedAddress, 
+      value:abnb,
+      gas: gas
+    })
   return transaction;
 }
 

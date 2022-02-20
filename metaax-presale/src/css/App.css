@@ -26,7 +26,7 @@ h2 {
   font-size: large;
 }
 
-h3,h4 {
+h3 {
   display: block;
   margin-block-start: 10px;
   margin-block-end: 5px;
@@ -36,6 +36,37 @@ h3,h4 {
 
 h4 {
   font-style: normal;
+  margin-block-start: 1px;
+  margin-block-end: 5px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+ul {
+  margin-block-start: 0;
+  margin-block-end: 0;
+  padding-inline-start: 0;
+}
+
+select {
+  width: fit-content;
+  padding: 5px 80px 5px 10px;
+  border: 0 !important;
+  border-radius: 5px;
+  background-color: #1f265e;
+  color: white;
+  /* needed */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* SVG background image */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Ctitle%3Edown-arrow%3C%2Ftitle%3E%3Cg%20fill%3D%22%23FFFFFF%22%3E%3Cpath%20d%3D%22M10.293%2C3.293%2C6%2C7.586%2C1.707%2C3.293A1%2C1%2C0%2C0%2C0%2C.293%2C4.707l5%2C5a1%2C1%2C0%2C0%2C0%2C1.414%2C0l5-5a1%2C1%2C0%2C1%2C0-1.414-1.414Z%22%20fill%3D%22%23FFFFFF%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+    background-size: .6em;
+    background-position: calc(100% - 1.3em) center;
+    background-repeat: no-repeat;
+}
+select::-ms-expand {
+    display: none;
 }
 
 .option-max {
@@ -231,7 +262,8 @@ h4 {
 .adl-main {
   display: flex;
   flex-direction: column;
-  margin: 2rem 2rem 1rem;
+  margin: 1rem 2rem 1rem;
+  align-items: center;
 }
 
 .adl-main button {
@@ -250,6 +282,10 @@ h4 {
   width: 50%;
   flex-direction: column;
   margin-right: 1rem;
+}
+
+.adl-input .line-desc {
+  padding-top: 0.5rem;
 }
 
 .liq-inpbox {
@@ -274,6 +310,7 @@ h4 {
 }
 
 .logbox {
+  width: 100%;
   border: solid 2px;
   border-radius: 10px;
   border-color: #d33bd3;
@@ -308,6 +345,14 @@ h4 {
           mask-composite: exclude; 
 }
 
+.notify {
+  padding: 10px 10px 10px;
+  border-top: 2px solid var(--bs-border-color);
+}
+
+.notify p {
+  margin:0;
+}
 @media (min-width: 320px) and (max-width: 767px) {
   
   h1 {

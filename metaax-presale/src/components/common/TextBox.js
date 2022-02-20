@@ -1,4 +1,4 @@
-export default function TextBox({unit, balance, enterHandler, value, option}) {
+export default function TextBox({placeholder, balance, enterHandler, value, option, style}) {
   
   function handleChange({target}) {
     if (typeof enterHandler !== 'undefined')
@@ -13,16 +13,17 @@ export default function TextBox({unit, balance, enterHandler, value, option}) {
 
   return(<>
     <input type="text" 
-          onKeyPress={(event) => {
-            if (!/[0-9.]+/.test(event.key)) {
-              event.preventDefault();
-            }
-          }}
-          className="effect-16" 
-          placeholder={`Amount of ${unit}`}
-          onChange={handleChange}
-          value= {value || ""}
-        />
+      onKeyPress={(event) => {
+        if (!/[0-9.]+/.test(event.key)) {
+          event.preventDefault();
+        }
+      }}
+      className="effect-16" 
+      placeholder={placeholder}
+      onChange={handleChange}
+      value= {value || ""}
+      style={{width:"100%"}}
+    />
     {
     option !== undefined 
       ? <span 

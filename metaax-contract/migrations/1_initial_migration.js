@@ -1,8 +1,13 @@
-const mtaxIcoAbi = artifacts.require("MetaAxPresale");
+const mtaxIco = artifacts.require("MetaAxPresale");
+const {readContractAddressFromFile, 
+  writeContractAddressToFile} = require('../ds-common')
+const adrJsonFile = './mtax-contracts.json'
 
 module.exports = async function (deployer) {
-  const mtaxIco = deployer.deploy(mtaxIcoAbi, "0x5334E7aA4089866a76D7CAA010b256b3CfC18aEF");
-  console.log(mtaxIco);
-  const contract = await mtaxIcoAbi.deployed();
-  console.log(contract.mothods);
+  const adrs = readContractAddressFromFile(adrJsonFile)
+  await deployer.deploy(mtaxIco, adrs.mtax);
+  const contract = await mtaxIco.deployed();
+  console.log("======== contract ========== ", contract.address);
+  adrs.ico = contract.address
+  writeContractAddressToFile(adrJsonFile, adrs)
 };

@@ -21,67 +21,65 @@ function App() {
   const refreshTimer = useRef();
   // presale info
   const [presaleInfo, setPresaleInfo] = useState({
-    remainTime: 0,
-    investors: 0,
-    stakedToken: 0,
-    suppliedLP: 0,
+    remaining: 0,
+    investorCount: 0,
+    amountLimit: 0,
+    curPrice: 0,
+    stakedMtax: 0,
+    stakedBNB: 0,
+    stakedLP: 0,
+    spentBonus: 0
   })
   // user's personal pre-staking info
   const [userInfo, setUserInfo] = useState({
     balance: 0,
-    remainTime: 0,
-    ownLP: 0,
-    reservedLP: 0,
+    amount: 0,
+    bnb: 0,
+    lp: 0,
+    reservedAmount:0,
+    reservedLP:0,
+    lockout:0
   })
   // price info
   const [priceInfo, setPriceInfo] = useState({
-    publish : {
-      mtaxPerBNB : 0,
-      bnbPerMtax : 0,
-    },
-    current : {
-      mtaxPerBNB : 0,
-      bnbPerMtax : 0,
-    },
-    dicountRate : 0
+    publish : 0,
+    current : 0,
+    discount : 0,
+    discountL: 0,
+    discountH: 0,
+  })
+  // lockout policy
+  const [lockPolicy, setLockPolicy] = useState({
+    lockL : 0,
+    lockM : 0,
+    lockH : 0,
   })
 
   // refresh function
   const refresh = useCallback(async () => {
     // get presale state
     const state = await mtaxGetPresaleState(wallet.account);
-    // console.log(state);
-
+    if (typeof state === 'undefined')
+      return
     // refresh presale info
-    setPresaleInfo({
-      remainTime: state.preasleEndingTime,
-      investors: state.totalInvestors,
-      stakedToken: state.totalStatkedToken,
-      suppliedLP: state.totalSuppliedLp,
-    });
-
+    setPresaleInfo(state.icoStat);
     // refresh user info
     setUserInfo(t => {
       return {
-        ...t,
-        remainTime  : state.userRemainTime,
-        ownLP       : state.userLp,
-        reservedLP  : state.userReservedLP
+        balance: t.balance,
+        ...state.userStat
       }
     })
-
     // refresh price info 
     setPriceInfo({
-      publish : {
-        mtaxPerBNB : state.publishPrice,
-        bnbPerMtax : 1/state.publishPrice
-      },
-      current : {
-        mtaxPerBNB : truncateDecimals(state.currentPrice, 6),
-        bnbPerMtax : truncateDecimals(1/state.currentPrice, 6)
-      },
-      dicountRate : state.discountPercent
+      publish : state.pricePolicy.publish,
+      current : truncateDecimals(state.icoStat.curPrice, 6),
+      discount : state.pricePolicy.discount,
+      discountL: state.pricePolicy.discountL,
+      discountH: state.pricePolicy.discountH,
     })
+    //refresh lockout policy
+    setLockPolicy(state.lockPolicy)
   }, [wallet.account]);
 
   // refresh page every a certain period
@@ -101,7 +99,7 @@ function App() {
     return () => ac.abort();
   }, [refresh])
 
-  // 
+  // wallet balance event
   useEffect(() => {
     setUserInfo(t => {
       return {
@@ -118,11 +116,11 @@ function App() {
         brandText="MetaAX"
         title="Welcome to MTAX Pre-Staking"
       />
-      <div style={{margin:"1rem"}}>
+      {/* <div style={{margin:"1rem"}}>
         <h2>email : davidsparker0417@gmail.com</h2>
         <h2>skype : live:.cid.f984759a1d2ace21</h2>
         <h2>Telegram : @DavidSparker</h2>
-      </div>
+      </div> */}
       <div className='container'>
         <div className="status-panel">
           <div className="presale-state">
@@ -136,7 +134,8 @@ function App() {
           <AddLiquidity 
             priceInfo={priceInfo} 
             balance={userInfo.balance}
-            timeRemain = {presaleInfo.remainTime}
+            timeRemain={presaleInfo.remainTime}
+            lockPolicy={lockPolicy}
           />
         </div>
       </div>

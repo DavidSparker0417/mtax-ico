@@ -1,6 +1,8 @@
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const fs = require('fs');
 const privateKey = fs.readFileSync('.secret').toString().trim();
+const {rpcNodes} = require('./bc-net')
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -51,13 +53,13 @@ module.exports = {
     },
 
     bsc_test: {
-      provider : () => new HDWalletProvider(privateKey, `https://data-seed-prebsc-1-s1.binance.org:8545/`),
-      network_id: 97,
-      confirmations: 10,
+      provider : () => new HDWalletProvider(privateKey, rpcNodes.bsc_test.url),
+      network_id: rpcNodes.bsc_test.chainId,
+      confirmations: 2,
       timeoutBlocks: 200,
+      networkCheckTimeout: 999999,
       skipDryRun: true
     },
-    
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port

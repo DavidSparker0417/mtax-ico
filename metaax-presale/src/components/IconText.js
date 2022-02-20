@@ -9,7 +9,7 @@ export default function IconText({icon, title, size, style}) {
       <div className="content-vmiddle">
         <img src={icon} width={iconWidth} height={iconHeight} alt={title}/>
       </div>
-      <h2 style={{marginLeft:"1rem", fontSize:size}}>{title}</h2>
+      <h2 className="content-vmiddle" style={{marginLeft:"0.5rem", fontSize:size}}>{title}</h2>
     </div>
   )
 }

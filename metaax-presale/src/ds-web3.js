@@ -1,6 +1,6 @@
 import {ethers} from 'ethers';
 import Web3 from 'web3';
-import BN from 'bignumber.js';
+// import BN from 'bignumber.js';
 import HDWalletProvider from '@truffle/hdwallet-provider';
 
 /***************************************/
@@ -35,6 +35,9 @@ export function walletGetTrimedAccountName(account) {
   return account.substr(2,4) + '...' + account.substr(-4, 4);
 }
 
+export function isAddressValid(address) {
+  return Web3.utils.isAddress(address);
+}
 /***************************************/
 /*          ethers web3 functions      */
 /***************************************/
@@ -168,4 +171,18 @@ export function ethToWei(eth, decimals) {
   }
 
   return weiVal;
+}
+
+/***************************************/
+/*       Error message functions       */
+/***************************************/
+export function dsErrMsgGet(message)
+{ 
+  const prefix = 'Internal JSON-RPC error.'
+  let msg = message
+  if(msg.startsWith(prefix)) {
+    const str = msg.replace(prefix, '').trim()
+    msg = JSON.parse(str).message
+  }
+  return msg
 }
