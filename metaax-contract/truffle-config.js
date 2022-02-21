@@ -60,6 +60,16 @@ module.exports = {
       networkCheckTimeout: 999999,
       skipDryRun: true
     },
+
+    bsc: {
+      provider : () => new HDWalletProvider(privateKey, rpcNodes.bsc.url),
+      network_id: rpcNodes.bsc.chainId,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      networkCheckTimeout: 999999,
+      skipDryRun: true
+    },
+
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port
