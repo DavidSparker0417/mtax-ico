@@ -14,12 +14,12 @@ ReactDOM.render(
         injected: {
           chainId:[TARGET_NET.chainId,],
           rpc: {
-            97: TARGET_NET.url
+            [TARGET_NET.chainId]: TARGET_NET.url
           }
         },
         walletconnect: {
           rpc: {
-            97 : TARGET_NET.url
+            [TARGET_NET.chainId] : TARGET_NET.url
           },
           bridge: 'https://bridge.walletconnect.org',
           pollingInterval: 12000,
