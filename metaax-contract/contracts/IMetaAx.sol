@@ -686,4 +686,6 @@ interface IMetaAX {
     function transfer(address recipient, uint256 amount) external returns (bool);
     function uniswapV2Router() external view returns(IUniswapV2Router02);
     function uniswapV2Pair() external view returns(address);
+    function excludeFromFee(address account) external;
+    function isExcludedFromFee(address account) external view returns(bool);
 }
