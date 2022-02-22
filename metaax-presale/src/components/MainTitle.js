@@ -1,7 +1,7 @@
 import { 
-  conntectWalletInjected,
-  walletGetTrimedAccountName
-} from "ds-web3";
+  dsWalletConnectInjected,
+  dsWalletGetTrimedAccountName
+} from "../dslib/ds-web3";
 import { useEffect, useState } from "react";
 import { useWallet } from "use-wallet";
 import { TARGET_NET } from "./ContractInterface";
@@ -16,7 +16,7 @@ export default function MainTitle({brandIcon, brandText, title}) {
     if (wallet.status === 'connecting')
       return;
     const btnName = wallet.account !== null 
-      ? walletGetTrimedAccountName(wallet.account)
+      ? dsWalletGetTrimedAccountName(wallet.account)
       : "Wallet Connect" ;
     setWalletButtonFace(btnName);
   }, [wallet.status])
@@ -26,7 +26,7 @@ export default function MainTitle({brandIcon, brandText, title}) {
     if (wallet.isConnected()) return;
     if (window.ethereum)
     {
-      await conntectWalletInjected(TARGET_NET.chainId);
+      await dsWalletConnectInjected(TARGET_NET.chainId);
       wallet.connect()
     }
     else

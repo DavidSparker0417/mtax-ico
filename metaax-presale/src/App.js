@@ -8,8 +8,8 @@ import AddLiquidity from './components/AddLiquidity';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useWallet } from 'use-wallet';
 import { mtaxGetPresaleState } from './components/ContractInterface';
-import { DECIMAL_DEFAULT, weiToEth } from './ds-web3';
-import { truncateDecimals } from 'utils';
+import { truncateDecimals } from './dslib/ds-utils';
+import { dsBnWeiToEth } from './dslib/ds-web3';
 
 const REFRESH_INTERVAL = 1000;
 const brandIcon = 'images/brand.png';
@@ -104,7 +104,7 @@ function App() {
     setUserInfo(t => {
       return {
         ...t,
-        balance: weiToEth(wallet.balance, DECIMAL_DEFAULT, 4)
+        balance: dsBnWeiToEth(wallet.balance)
       }
     })
   }, [wallet.balance])

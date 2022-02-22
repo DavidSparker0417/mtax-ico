@@ -1,12 +1,12 @@
 import {ethers} from 'ethers';
 import Web3 from 'web3';
-// import BN from 'bignumber.js';
 import HDWalletProvider from '@truffle/hdwallet-provider';
+import { routerAbi, tokenAbi } from './default-abi';
 
 /***************************************/
 /*          wallet functions           */
 /***************************************/
-export async function conntectWalletInjected(chainId) {
+export async function dsWalletConnectInjected(chainId) {
   if (!window.ethereum)
       return null;
   try {
@@ -23,26 +23,20 @@ export async function conntectWalletInjected(chainId) {
   return null;
 }
 
-export async function walletGetActiveNet() {
-  if (!window.ethereum)
-  {
-      alert("Metamask is not installed.")
-      return null;
-  }
-}
-
-export function walletGetTrimedAccountName(account) {
+export function dsWalletGetTrimedAccountName(account) {
   return account.substr(2,4) + '...' + account.substr(-4, 4);
 }
 
-export function isAddressValid(address) {
+/***************************************/
+/*          ethers.js functions        */
+/***************************************/
+// check if wallet address valid
+export function dsWeb3IsAddrValid(address) {
   return Web3.utils.isAddress(address);
 }
-/***************************************/
-/*          ethers web3 functions      */
-/***************************************/
+
 // get web3 provider
-export function ethersGetWeb3Provider() {
+export function dsEthersGetWeb3Provider() {
   if (!window.ethereum)
   {
       alert("Metamask is not installed.")
@@ -53,7 +47,7 @@ export function ethersGetWeb3Provider() {
 }
 
 // get contract object 
-export function ethersGetContract(addr, abi, isTrReq) {
+export function dsEthersGetContract(addr, abi, isTrReq) {
   if (!window.ethereum)
   {
       alert("Metamask is not installed.")
@@ -74,7 +68,7 @@ export function ethersGetContract(addr, abi, isTrReq) {
 /***************************************/
 /*          web3.js  functions         */
 /***************************************/
-export function web3GetSignedContract(chainId, privateKey, contractAbi, contractAddr) {
+export function dsWeb3GetSignedContract(chainId, privateKey, contractAbi, contractAddr) {
   const provider = new HDWalletProvider(privateKey, chainId);
   const web3 = new Web3(provider);
   const contract = new web3.eth.Contract(contractAbi, contractAddr);
@@ -86,7 +80,7 @@ export function web3GetSignedContract(chainId, privateKey, contractAbi, contract
  * @param rpc provider
  * @returns web3
  */
-export function web3Get(provider) {
+export function dsWeb3Get(provider) {
   let web3;
   if (typeof provider === 'undefined')
     web3 = new Web3(window.web3.currentProvider);
@@ -96,19 +90,64 @@ export function web3Get(provider) {
 }
 
 // get web3 contract
-export function web3GetContract(provider, address, abi) {
-  const web3 = web3Get(provider)
+export function dsWeb3GetContract(provider, address, abi) {
+  const web3 = dsWeb3Get(provider)
   const contract = new web3.eth.Contract(abi, address);
   return contract;
 }
 
-// get current account of metamask
-export async function web3GetCurrentAccount() {
+// get current account
+export async function dsWeb3GetCurrentAccount() {
   const web3 = new Web3(window.web3.currentProvider);
   const accounts = await web3.eth.getAccounts();
   return accounts[0];
 }
 
+// get token balance
+export async function dsWeb3GetTokenBalance(token, account) {
+  const request = token.methods.balanceOf(account).call()
+  let balance = 0
+  await request.then(function(recipent) {
+    balance = recipent
+  }).catch(function(error) {
+    const msg = dsErrMsgGet(error.message)
+    console.log(msg)
+  })
+  return dsBnWeiToEth(balance)
+}
+
+// get token price
+export async function dsWeb3GetTokenPrice(provider, token, stableCoin) {
+  let contract = dsWeb3GetContract(provider, token, tokenAbi)
+  let router
+  // get router address
+  await contract.methods.router().call()
+    .then(function(recipent) {
+      router = recipent
+    })
+    .catch( function(error) {
+      const msg = dsErrMsgGet(error.message)
+      console.log(msg)
+    })
+    
+  if (router === undefined)
+    return undefined
+    
+  // get price
+  let price
+  contract = dsWeb3GetContract(provider, router, routerAbi)
+  await contract.methods
+    .getAmountsOut(dsBnEthToWei(1), [token, stableCoin]).call()
+    .then(function(recipent) {      
+      price = dsBnWeiToEth(recipent[1])
+    })
+    .catch(function(error) {
+      const msg = dsErrMsgGet(error.message)
+      console.log(msg)
+    })
+  
+  return price
+}
 /***************************************/
 /*       bignumber  functions          */
 /***************************************/
@@ -130,7 +169,7 @@ function getEthUnit(accuracy)
   return null;
 }
 
-export function weiToEth(wei, decimals, precision) {
+export function dsBnWeiToEth(wei, decimals, precision) {
   let ethVal;
   if (typeof decimals === 'undefined')
     ethVal = Web3.utils.fromWei(wei, 'ether');
@@ -155,7 +194,7 @@ export function weiToEth(wei, decimals, precision) {
   return parseFloat(ethVal);
 }
 
-export function ethToWei(eth, decimals) {
+export function dsBnEthToWei(eth, decimals) {
   let weiVal;
 
   if (typeof eth === 'undefined')

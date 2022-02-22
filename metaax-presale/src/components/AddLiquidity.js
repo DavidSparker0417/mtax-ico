@@ -3,8 +3,8 @@ import LiqInputBox from "./LiqInputBox";
 import PriceInfoCard from "./PriceInfoCard";
 import {mtaxAddLiquidity} from "./ContractInterface"
 import { useWallet } from "use-wallet";
-import {toHumanizeFixed} from "../utils";
-import {dsErrMsgGet, isAddressValid} from "../ds-web3"
+import {toHumanizeFixed} from "../dslib/ds-utils";
+import {dsErrMsgGet, dsWeb3IsAddrValid} from "../dslib/ds-web3"
 const bnbIcon = './images/BNB.svg';
 const tokenIcon = './images/mtax.svg';
 const lockTimeIcon = './images/lockout.svg';
@@ -118,7 +118,7 @@ export default function AddLiquidity({priceInfo, balance, lockPolicy}) {
       logout("Recommender address must not be the same as your wallet address.")
       return
     }
-    if (recommender && !isAddressValid(recommender))
+    if (recommender && !dsWeb3IsAddrValid(recommender))
     {
       logout("Recommender address is not valid!")
       return

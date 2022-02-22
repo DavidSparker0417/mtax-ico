@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { secondToTimeFormatString } from "utils";
+import { secondToTimeFormatString } from "../dslib/ds-utils";
 
 export default function CountdownWatch({onZero, referenceTime}) {
   const[count, setCount] = useState(0);

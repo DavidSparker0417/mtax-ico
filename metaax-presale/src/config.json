@@ -26,6 +26,6 @@
   "target" : "bsc_test",
   "contracts" : {
     "mtax" : "0x02E9015f98E26eD1bC7Bb51953c9C9eF2F579bAd",
-    "ico"  : "0xf87EEc4ca17Bcf5470FcfbCE550915302f37A728"
+    "ico"  : "0xE2F834de86fD2D6A053C11bf19676ec8e14BAc0b"
   }
 }
