@@ -35,9 +35,9 @@ export default function AddLiquidity({priceInfo, balance, lockPolicy}) {
     setInpBnbValue(toHumanizeFixed(liqBnb + additionalBnb))
   }, [addtionalCostRate])
 
-  useEffect(() => {
-    setLockout(lockPolicy.lockL)
-  }, [lockPolicy])
+  // useEffect(() => {
+  //   setLockout(lockPolicy.lockL)
+  // }, [lockPolicy])
 
   useEffect(() => {
     let rate
@@ -47,7 +47,7 @@ export default function AddLiquidity({priceInfo, balance, lockPolicy}) {
       rate = priceInfo.discountH
     else 
       rate = priceInfo.discount
-    setAddtionalCostRate(rate);
+    setAddtionalCostRate(rate)
   }, [lockout, lockPolicy, priceInfo])
 
   useEffect(() => {
