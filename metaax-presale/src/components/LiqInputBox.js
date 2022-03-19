@@ -16,6 +16,7 @@ export default function LiqInputBox({
   enterHandler, 
   value, 
   list,
+  disabled,
   style}) {
   
   return(
@@ -23,7 +24,7 @@ export default function LiqInputBox({
       <LineDesc 
         title={title} 
         value={balance !== undefined ? `Balance: ${balance}` : ""}
-        style={{width:"100%"}}
+        style={{width:"100%", ...style}}
       />
       <div style={{display:"flex", marginLeft:"2rem", marginRight:"2rem", justifyContent:"space-between"}}>
       <div className="container-ver-split" style={{with:"80%", paddingRight:"8px"}}>
@@ -34,6 +35,7 @@ export default function LiqInputBox({
               value={value} 
               balance={balance} 
               option={option}
+              disable={disabled}
               enterHandler={enterHandler}
             />
         }

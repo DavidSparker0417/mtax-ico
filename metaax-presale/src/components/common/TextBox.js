@@ -1,4 +1,4 @@
-export default function TextBox({placeholder, balance, enterHandler, value, option, style}) {
+export default function TextBox({placeholder, balance, enterHandler, value, option, disable, style}) {
   
   function handleChange({target}) {
     if (typeof enterHandler !== 'undefined')
@@ -22,6 +22,7 @@ export default function TextBox({placeholder, balance, enterHandler, value, opti
       placeholder={placeholder}
       onChange={handleChange}
       value= {value || ""}
+      disabled = { disable ? "disabled" : "" }
       style={{width:"100%"}}
     />
     {

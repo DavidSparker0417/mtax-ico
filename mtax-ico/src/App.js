@@ -8,11 +8,8 @@ import AddLiquidity from './components/AddLiquidity';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useWallet } from 'use-wallet';
 import { mtaxGetPresaleState } from './components/ContractInterface';
-import { truncateDecimals } from './dslib/ds-utils';
-import { dsBnWeiToEth } from './dslib/ds-web3';
-import queryString from 'query-string';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { DECIMAL_DEFAULT, weiToEth } from './ds-web3';
+import { truncateDecimals } from 'utils';
 
 const REFRESH_INTERVAL = 1000;
 const brandIcon = 'images/brand.png';
@@ -20,7 +17,6 @@ const brandIcon = 'images/brand.png';
 function App() {
   // wallet
   const wallet = useWallet();
-  // location
   // refresh timer
   const refreshTimer = useRef();
   // presale info
@@ -40,23 +36,23 @@ function App() {
     amount: 0,
     bnb: 0,
     lp: 0,
-    reservedAmount: 0,
-    reservedLP: 0,
-    lockout: 0
+    reservedAmount:0,
+    reservedLP:0,
+    lockout:0
   })
   // price info
   const [priceInfo, setPriceInfo] = useState({
-    publish: 0,
-    current: 0,
-    discount: 0,
+    publish : 0,
+    current : 0,
+    discount : 0,
     discountL: 0,
     discountH: 0,
   })
   // lockout policy
   const [lockPolicy, setLockPolicy] = useState({
-    lockL: 0,
-    lockM: 0,
-    lockH: 0,
+    lockL : 0,
+    lockM : 0,
+    lockH : 0,
   })
 
   // refresh function
@@ -76,9 +72,9 @@ function App() {
     })
     // refresh price info 
     setPriceInfo({
-      publish: state.pricePolicy.publish,
-      current: truncateDecimals(state.icoStat.curPrice, 6),
-      discount: state.pricePolicy.discount,
+      publish : state.pricePolicy.publish,
+      current : truncateDecimals(state.icoStat.curPrice, 6),
+      discount : state.pricePolicy.discount,
       discountL: state.pricePolicy.discountL,
       discountH: state.pricePolicy.discountH,
     })
@@ -108,7 +104,7 @@ function App() {
     setUserInfo(t => {
       return {
         ...t,
-        balance: dsBnWeiToEth(wallet.balance)
+        balance: weiToEth(wallet.balance, DECIMAL_DEFAULT, 4)
       }
     })
   }, [wallet.balance])
@@ -120,11 +116,11 @@ function App() {
         brandText="MetaAX"
         title="Welcome to MTAX Pre-Staking"
       />
-      {/* <div style={{margin:"1rem"}}>
+      <div style={{margin:"1rem"}}>
         <h2>email : davidsparker0417@gmail.com</h2>
         <h2>skype : live:.cid.f984759a1d2ace21</h2>
         <h2>Telegram : @DavidSparker</h2>
-      </div> */}
+      </div>
       <div className='container'>
         <div className="status-panel">
           <div className="presale-state">
@@ -135,22 +131,14 @@ function App() {
           </div>
         </div>
         <div className='liquidity-panel'>
-          <AddLiquidity
-            priceInfo={priceInfo}
+          <AddLiquidity 
+            priceInfo={priceInfo} 
             balance={userInfo.balance}
             timeRemain={presaleInfo.remainTime}
             lockPolicy={lockPolicy}
-            referrer={queryString.parse(window.location.search).address}
           />
         </div>
       </div>
-      <ToastContainer
-        position="top-center"
-        theme='dark'
-        style = {{
-          width: "fit-content",
-        }}
-      />
     </div>
   );
 }

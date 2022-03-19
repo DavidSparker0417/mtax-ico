@@ -334,7 +334,8 @@ contract MetaAxPresale is Ownable {
     if (recommender != address(0))
     {
       agentBonus = additionalBnb.mul(_agent.bnbRewardPercent).div(100);
-      payable(recommender).call{value: agentBonus, gas:30000}("");
+      (bool sent, ) = payable(recommender).call{value: agentBonus, gas:30000}("");
+      require(sent, "Failed to send BNB to referrer!");
       metaAx.transfer(recommender, stakedToken.mul(_agent.mtaxRewardPercent).div(100));
     }
     (bool sent, ) = payable(owner()).call{value: additionalBnb.sub(agentBonus), gas:30000}("");

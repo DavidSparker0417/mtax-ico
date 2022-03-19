@@ -6,6 +6,11 @@
 input[type="text"], input[type="number"]
   {font: 15px/24px 'Muli', sans-serif; color: #fcfafa; box-sizing: border-box; letter-spacing: 1px;}
 
+input[type="text"]:disabled
+  {
+    color:grey;
+  }
+
 :focus{outline: none;}
 
 .col-3{float: left; position: relative;} /* necessary to give position: relative to parent. */

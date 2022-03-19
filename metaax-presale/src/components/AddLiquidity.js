@@ -5,12 +5,14 @@ import {mtaxAddLiquidity} from "./ContractInterface"
 import { useWallet } from "use-wallet";
 import {toHumanizeFixed} from "../dslib/ds-utils";
 import {dsErrMsgGet, dsWeb3IsAddrValid} from "../dslib/ds-web3"
+import queryString from 'query-string'
+import { toast } from "react-toastify";
 const bnbIcon = './images/BNB.svg';
 const tokenIcon = './images/mtax.svg';
 const lockTimeIcon = './images/lockout.svg';
 const iconRecommender = './images/recommender.svg'
 
-export default function AddLiquidity({priceInfo, balance, lockPolicy}) {
+export default function AddLiquidity({priceInfo, balance, lockPolicy, referrer}) {
   const wallet = useWallet();
   const [inpBnbValue, setInpBnbValue] = useState();
   const [inpMtaxValue, setInpMtaxValue] = useState();
@@ -27,6 +29,15 @@ export default function AddLiquidity({priceInfo, balance, lockPolicy}) {
     setDiscount(p.toFixed(1));
   }, [priceInfo.current, priceInfo.publish])
   
+  useEffect(() => {
+    setRecommender(referrer)
+    if (dsWeb3IsAddrValid(referrer) === false)
+      toast.error(<>
+        <span>Referrer adderess format is not valid!</span><br/>
+        <span>{`(addr:${referrer})`}</span>
+        </>)
+  }, [referrer])
+
   useEffect(() => {
     if (typeof inpMtaxValue === 'undefined')
       return
@@ -202,6 +213,7 @@ export default function AddLiquidity({priceInfo, balance, lockPolicy}) {
             icon={iconRecommender}
             enterHandler={handleInputRecommender}
             unit="Address"
+            disabled={referrer!==undefined}
             placeholder="Recommender's wallet"
             value={recommender}
           />
